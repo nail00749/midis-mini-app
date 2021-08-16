@@ -1,13 +1,16 @@
 import { Text } from '@vkontakte/vkui'
+import { Discipline } from './Discipline'
+import { black } from 'chalk'
 
-export function Day({}) {
+export function Day({day, nameDay}) {
     return(
-        <div>
-            <Text className="discipline">
-                {'День'}
-            </Text>
-            <div>
-                {['discipline1', 'discipline2', 'discipline3'].map((item, index) => (<Text className="" key={index}>{item}</Text>))}
+        <div className={'column'} style={{margin: 10, marginBottom: 30}}>
+            <Text className={'' +
+            ''} style={{alignSelf: 'center', paddingBottom: 10}}>{nameDay}</Text>
+            <div className={'frame'}>
+                {
+                    day.map(item => <Discipline disc={item}/>)
+                }
             </div>
         </div>
     )

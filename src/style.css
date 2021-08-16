@@ -37,7 +37,11 @@
     display: flex;
     flex-direction: row;
     width: 100%;
-    margin-top: 20px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
 }
 
 .week {
@@ -45,5 +49,10 @@
     border-radius: 10px;
     padding: 5px;
     margin: 10px;
+}
+
+.frame {
+    border: 1px solid #004D6B;
+    border-radius: 15px;
 }
 

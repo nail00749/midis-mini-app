@@ -6,15 +6,15 @@ import {
 
 import API from '../Controllers/API'
 import DatePicker from 'react-horizontal-datepicker'
+import { Day } from '../components/Day'
 
 const days = {
-    0: 'пн',
-    1: 'вт',
-    2: 'ср',
-    3: 'чт',
-    4: 'пт',
-    5: 'сб',
-    6: 'вс',
+    0: 'Пн',
+    1: 'Вт',
+    2: 'Ср',
+    3: 'Чт',
+    4: 'Пт',
+    5: 'Сб',
 }
 
 
@@ -22,7 +22,9 @@ export function Schedule() {
 
     const [groups, setGroups] = useState(null)
 
-    const [schedule, setSсhedule] = useState(null)
+    const [scheduleDay, setScheduleDay] = useState(null)
+
+    const [selectedDay, setSelectedDay] = useState(new Date().getDay()-1)
 
     const [selectedGroup, setSelectedGroup] = useState(null)
 
@@ -39,41 +41,39 @@ export function Schedule() {
     const myRef = useRef(null)
 
     useEffect(() => {
-        getSchedule()
+        getAllGroups()
     }, [])
 
-    async function getSchedule() {
-        let result = await API.getSchedule()
-        let groups = Object.keys(result[0]).map((item, index) => ({label: item, value: item}))
+    async function getAllGroups() {
+        let result = await API.getListGroup()
+        let groups = result.map(item => ({label: item, value: item}))
         setGroups(groups)
-        setSсhedule(result)
     }
 
-    function inputChangeGroup(event) {
+    async function inputChangeGroup(event) {
         let group = event.target.value
         setSelectedGroup(group)
-        displaySchedule()
-    }
-
-    function inputChangeDay(event) {
-        let date = new Date(event)
-        let day = date.getDay()
-    }
-
-    function displaySchedule() {
-        if (selectedGroup) {
-            console.log()
-            let oven = Object.keys(schedule[0][selectedGroup]).map(item => schedule[0][selectedGroup][item].replaceAll('\n', '<br>'))
-            let odd = Object.keys(schedule[1][selectedGroup]).map(item => schedule[0][selectedGroup][item].replaceAll('\n', '<br>'))
-            console.log(oven)
-            setOvenWeek(oven)
-            setOddWeek(odd)
+        let data = {
+            group: group
         }
+        let result = await API.getGroupSchedule(data)
+        setOvenWeek(result[0])
+        setOddWeek(result[1])
+        console.log(result)
     }
+
+    function inputChangeDay(numberDay) {
+        setSelectedDay(numberDay)
+        if (ovenWeek && ovenWeek.hasOwnProperty(numberDay)) {
+            setScheduleDay(ovenWeek[numberDay])
+        }
+
+    }
+
 
     return (
         <Panel>
-            <Div>
+            <Div style={{paddingBottom: 20}}>
                 <PanelHeader>Расписание</PanelHeader>
                 {
                     groups ?
@@ -126,65 +126,89 @@ export function Schedule() {
                 </div>
                 {
                     typeView === 'day' ?
-                        <DatePicker
-                        getSelectedDay={inputChangeDay}
-                        endDate={100}
-                        selectDate={Date.now()}
-                        labelFormat={'MMMM'}
-                        color={'#374e8c'}
-                    /> : null
+                        /*<DatePicker
+                            getSelectedDay={inputChangeDay}
+                            endDate={100}
+                            selectDate={Date.now()}
+                            labelFormat={'MMMM'}
+                            color={'#374e8c'}
+                        /> */
+                        <div className={'row'}>
+                            {Object.keys(days).map((item, index) =>
+                                <Button
+                                    onClick={e => {
+                                        inputChangeDay(item)
+                                    }}
+                                    style={{margin: 5}}
+                                    mode={selectedDay == index ? 'primary' : 'outline'}>{days[item]}
+                                </Button>)}
+                        </div>
+
+                        : null
                 }
 
-                <div
-                    style={{width: '100%', marginTop: 10}}
-                >
-                    <Tabs
-                        mode={'segmented'}
+                {typeView === 'week' ?
+                    <div
+                        style={{width: '100%', marginTop: 10}}
                     >
-                        <TabsItem
-                            selected={typeWeek === 'oven'}
-                            onClick={() => {
-                                setTypeWeek('oven')
-                            }}
+                        <Tabs
+                            mode={'segmented'}
                         >
-                            Четная
-                        </TabsItem>
-                        <TabsItem
-                            selected={typeWeek === 'odd'}
-                            onClick={() => {
-                                setTypeWeek('odd')
-                            }}
-                        >
-                            Нечетная
-                        </TabsItem>
-                    </Tabs>
-                </div>
+                            <TabsItem
+                                selected={typeWeek === 'oven'}
+                                onClick={() => {
+                                    setTypeWeek('oven')
+                                }}
+                            >
+                                Четная
+                            </TabsItem>
+                            <TabsItem
+                                selected={typeWeek === 'odd'}
+                                onClick={() => {
+                                    setTypeWeek('odd')
+                                }}
+                            >
+                                Нечетная
+                            </TabsItem>
+                        </Tabs>
+                    </div> : null
+                }
                 {/*----*/}
-
-                <div className={''}>
+                <div>
                     {
-                        ovenWeek ?
-                            Object.keys(ovenWeek).map((item) => {
-                                return (
-                                    <div>
-                                        <Text>{days[item]}</Text>
-                                        {
-                                            typeWeek === 'oven' ?
-                                                <div
-                                                    dangerouslySetInnerHTML={{__html: ovenWeek[item]}}
-                                                /> :
-                                                <div
-                                                    dangerouslySetInnerHTML={{__html: oddWeek[item]}}
-                                                />
-                                        }
-                                    </div>
-                                )
+                        typeView === 'week' ?
+                            (typeWeek === 'oven' ?
+                                <div className={''}>
+                                    {
+                                        ovenWeek ?
+                                            Object.keys(ovenWeek).map((day) => {
+                                                return (
+                                                    <Day day={ovenWeek[day]} nameDay={days[day]}/>
+                                                )
+                                            })
+                                            : null
+                                    }
+                                </div> :
+                                <div className={''}>
+                                    {
+                                        oddWeek ?
+                                            Object.keys(oddWeek).map((day) => {
+                                                return (
+                                                    <Day day={oddWeek[day]} nameDay={days[day]}/>
+                                                )
+                                            })
+                                            : null
+                                    }
+                                </div>) :
+                            (oddWeek &&  selectedDay && scheduleDay ?
+                                <Day
+                                    day={scheduleDay}
+                                /> :
+                                    <Text>'Нет пар'</Text>
+                            )
 
-                            })
-                            : null
                     }
                 </div>
-
 
             </Div>
         </Panel>

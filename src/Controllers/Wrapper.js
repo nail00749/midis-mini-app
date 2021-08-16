@@ -19,9 +19,8 @@ export const request = async (options) => {
         requestOptions.body = JSON.stringify(data)
     }
     else if (data) {
-        Object.keys(data).forEach(key => Url.searchParams.append(key, data[key]))
+        //Object.keys(data).forEach(key => Url.searchParams.append(key, data[key]))
     }
-
     let response = await fetch(Url.href, requestOptions)
     if (response.status === 200) {
         let result = await response.json()

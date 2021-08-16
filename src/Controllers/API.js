@@ -1,9 +1,19 @@
 import { request } from './Wrapper'
 
 class API {
-    static getSchedule(data) {
+    static getListGroup(data) {
         let options = {
-            url: '',
+            url: 'groups',
+            method: 'GET',
+            data: {...data}
+        }
+        return request(options)
+    }
+
+    static getGroupSchedule(data) {
+        let route  = data?.group
+        let options = {
+            url: `/group/${route}`,
             method: 'GET',
             data: {...data}
         }

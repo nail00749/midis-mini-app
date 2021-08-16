@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import bridge from '@vkontakte/vk-bridge'
-import { View, AdaptivityProvider, AppRoot, Tabbar, TabbarItem, Button } from '@vkontakte/vkui'
+import { View, AdaptivityProvider, AppRoot} from '@vkontakte/vkui'
 import '@vkontakte/vkui/dist/vkui.css'
 
 import { Schedule } from './panels/Schedule'
@@ -14,7 +14,7 @@ import style from './style.css'
 const App = () => {
     const [activePanel, setActivePanel] = useState('schedule')
     const [fetchedUser, setUser] = useState(null)
-    const [popout, setPopout] = useState(null)//<ScreenSpinner size='large' />
+    const [popout, setPopout] = useState(null)
 
     useEffect(() => {
         bridge.subscribe(({detail: {type, data}}) => {
